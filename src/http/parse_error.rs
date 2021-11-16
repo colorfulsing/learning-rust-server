@@ -1,8 +1,6 @@
-use std::fmt::Display;
-use std::fmt::Debug;
-use std::fmt::Result as FmtResult;
-use std::fmt::Formatter;
+use std::fmt::{Display, Debug, Formatter, Result as FmtResult};
 use std::str::Utf8Error;
+use super::MethodError;
 
 pub enum ParseError {
     InvalidRequest,
@@ -28,6 +26,12 @@ impl From<Utf8Error> for ParseError {
     }
 }
 
+impl From<MethodError> for ParseError {
+    fn from(_: MethodError) -> Self {
+        Self::InvalidMethod
+    }
+}
+
 impl Display for ParseError {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         write!(f, "{}", self.message())
@@ -39,5 +43,3 @@ impl Debug for ParseError {
         write!(f, "{}", self.message())
     }
 }
-
-impl Error for ParseError {}
