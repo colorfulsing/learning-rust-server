@@ -1,20 +1,21 @@
-use super::{Method, ParseError};
+use super::{Method, ParseError, QueryString};
 use std::convert::TryFrom;
 use std::str;
 
-pub struct Request {
-    path: String,
-    query_string: Option<String>,
-    method: Method
+#[derive(Debug)]
+pub struct Request<'buf> {
+    pub path: &'buf str,
+    pub query_string: Option<QueryString<'buf>>,
+    pub method: Method
 }
 
 // this one also implements the TryInto into &[u8]
-impl TryFrom<&[u8]> for Request {
+impl<'buf> TryFrom<&'buf [u8]> for Request<'buf> {
     type Error = ParseError;
 
     //GET /something?a=1&b=2 HTTP/1.1
 
-    fn try_from(buf: &[u8]) -> Result<Self, Self::Error> {
+    fn try_from(buf: &'buf [u8]) -> Result<Self, Self::Error> {
         let request = str::from_utf8(buf)?;
 
         let (method, request) = get_next_word(request).ok_or(ParseError::InvalidRequest)?;
@@ -29,12 +30,12 @@ impl TryFrom<&[u8]> for Request {
 
         let mut query_string = None;
         if let Some(i) = path.find('?') {
-            query_string = Some(path[(i+1)..].to_string());
+            query_string = Some(QueryString::from(&path[(i+1)..]));
             path = &path[..i];
         }
 
         Ok(Self{
-            path: path.to_string(),
+            path,
             query_string,
             method
         })

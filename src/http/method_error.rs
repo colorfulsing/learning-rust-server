@@ -11,10 +11,10 @@ impl MethodError {
         }
     }
 
-    pub fn message(&self) -> &str {
-        match self.value {
-            Some(v) => format!("unknown method \"{}\"", v),
-            _ => "unknown method"
+    pub fn message(&self) -> String {
+        match &self.value {
+            Some(v) => format!("unknown method \"{}\"", &v[..]),
+            _ => "unknown method".to_string()
         }
     }
 }

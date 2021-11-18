@@ -1,6 +1,7 @@
 use std::str::FromStr;
 use super::MethodError;
 
+#[derive(Debug)]
 pub enum Method {
     GET,
     DELETE,
